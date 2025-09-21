@@ -1,24 +1,33 @@
-FROM php:8.2-fpm-alpine
+FROM nginx:alpine
 
-# Install nginx and required PHP extensions
-RUN apk add --no-cache nginx supervisor
+# Install PHP and PHP-FPM
+RUN apk add --no-cache \
+    php82 \
+    php82-fpm \
+    php82-session \
+    php82-json \
+    php82-mbstring \
+    php82-openssl
 
-# Create nginx user and directories
-RUN mkdir -p /var/log/nginx /var/lib/nginx/tmp /run/nginx
+# Create PHP-FPM directories
+RUN mkdir -p /run/php
 
 # Copy nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
-
-# Copy supervisor configuration
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy website files
-COPY html /var/www/html
+COPY html /usr/share/nginx/html
+
+# Copy PHP-FPM configuration
+COPY php-fpm.conf /etc/php82/php-fpm.d/www.conf
+
+# Create startup script
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 
 # Set permissions
-RUN chown -R www-data:www-data /var/www/html
-RUN chmod -R 755 /var/www/html
+RUN chown -R nginx:nginx /usr/share/nginx/html
 
 EXPOSE 80
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["/start.sh"]
