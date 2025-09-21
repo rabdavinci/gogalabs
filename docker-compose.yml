@@ -1,13 +1,47 @@
 version: '3.8'
 
 services:
-  web:
-    build: .
-    container_name: sapsite
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    networks:
+      - proxy
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./html:/usr/share/nginx/html
-      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /etc/nginx/certs:/etc/nginx/certs:rw
+      - /etc/nginx/vhost.d:/etc/nginx/vhost.d:rw
+      - /usr/share/nginx/html:/usr/share/nginx/html:rw
+      - /var/run/docker.sock:/tmp/docker.sock:ro
     restart: unless-stopped
+
+  letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: nginx-proxy-letsencrypt
+    networks:
+      - proxy
+    volumes_from:
+      - nginx-proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - NGINX_PROXY_CONTAINER=nginx-proxy
+    restart: unless-stopped
+
+  sapsite:
+    build: .
+    container_name: sapsite
+    networks:
+      - proxy
+    environment:
+      - VIRTUAL_HOST=gogalabs.com,www.gogalabs.com
+      - LETSENCRYPT_HOST=gogalabs.com,www.gogalabs.com
+      - LETSENCRYPT_EMAIL=usmonovgayrat89@gmail.com
+    volumes:
+      - ./html:/usr/share/nginx/html
+    restart: unless-stopped
+
+networks:
+  proxy:
+    external: true
