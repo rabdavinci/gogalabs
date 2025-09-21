@@ -3,8 +3,11 @@ version: '3.8'
 services:
   web:
     build: .
-    image: sapsite:latest
     container_name: sapsite
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - ./html:/usr/share/nginx/html
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     restart: unless-stopped
