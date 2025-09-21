@@ -38,21 +38,6 @@ services:
       - VIRTUAL_HOST=gogalabs.com,www.gogalabs.com
       - LETSENCRYPT_HOST=gogalabs.com,www.gogalabs.com
       - LETSENCRYPT_EMAIL=usmonovgayrat89@gmail.com
-    volumes:
-      - ./html:/usr/share/nginx/html
-    restart: unless-stopped
-
-  backend:
-    build: ./backend
-    container_name: gogalabs-backend
-    networks:
-      - proxy
-    environment:
-      - VIRTUAL_HOST=api.gogalabs.com
-      - LETSENCRYPT_HOST=api.gogalabs.com
-      - LETSENCRYPT_EMAIL=usmonovgayrat89@gmail.com
-      - EMAIL_USER=usmonovgayrat89@gmail.com
-      - EMAIL_PASS=${EMAIL_PASS}
     restart: unless-stopped
 
 networks:
