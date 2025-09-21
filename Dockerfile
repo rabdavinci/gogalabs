@@ -7,19 +7,18 @@ RUN apk add --no-cache \
     php82-session \
     php82-json \
     php82-mbstring \
-    php82-openssl
+    php82-openssl \
+    php82-curl
 
 # Create PHP-FPM directories
 RUN mkdir -p /run/php
 
-# Copy nginx configuration
+# Copy configurations
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY php-fpm.conf /etc/php82/php-fpm.d/www.conf
 
 # Copy website files
 COPY html /usr/share/nginx/html
-
-# Copy PHP-FPM configuration
-COPY php-fpm.conf /etc/php82/php-fpm.d/www.conf
 
 # Create startup script
 COPY start.sh /start.sh
